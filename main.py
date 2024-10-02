@@ -64,19 +64,66 @@ class SparseMatrix:
         sub_value = self[(row, col)] - other[(row, col)]
         result[(row, col)] = sub_value
     return result
+  
+  def __mul__(self, other):
+    if type(other) != SparseMatrix:
+      raise ValueError("Matrices can only be multiplied to matrices")
+    if self.numRows != other.numCols:
+      raise ValueError("Matrix dimensions must match for multiplication")
+    result = SparseMatrix(self.numRows, other.numCols)
+    for row in range(self.numRows):
+      for col in range(other.numCols):
+        product_value = 0
+        for k in range(self.numCols):
+          product_value += self[(row, k)] * self[(k, col)]
+        result[(row, col)] = product_value
+    return result
     
   def __str__(self):
-    result = f"SparseMatrix\nrows={self.numRows}\ncols={self.numCols}\n"
+    result = f"rows={self.numRows}\ncols={self.numCols}\n"
     for (row, col), value in sorted(self.matrix.items()):
       result += f"({row}, {col}, {value})\n"
     return result
+  
+  def to_file(self, file_path):
+    with open(file_path, 'w') as file:
+        file.write(str(self))
 
 
 def main():
-  matrix1 = SparseMatrix.load("Input/test")
-  matrix2 = SparseMatrix.load("Input/test")
-  result = matrix1 + matrix2
-  print(result)
+    import sys
+
+    if len(sys.argv) != 3:
+        print("Usage: python main.py <matrix1_path> <matrix2_path>")
+        return
+
+    matrix1_path = sys.argv[1]
+    matrix2_path = sys.argv[2]
+
+    matrix1 = SparseMatrix.load(matrix1_path)
+    matrix2 = SparseMatrix.load(matrix2_path)
+
+    print("Choose an operation to perform:")
+    print("1. Addition")
+    print("2. Subtraction")
+    print("3. Multiplication")
+    
+    print(f"({matrix1.numRows}, {matrix1.numCols}) ({matrix2.numRows}, {matrix2.numCols})")
+
+    operation = input("Enter the number of the operation (1/2/3): ")
+
+    if operation == '1':
+        result = matrix1 + matrix2
+    elif operation == '2':
+        result = matrix1 - matrix2
+    elif operation == '3':
+        result = matrix1 * matrix2
+    else:
+        print("Unknown operation. Please enter 1, 2, or 3.")
+        return
+
+    result.to_file("results.txt")
+    print("The result has been written to results.txt")
   
 if __name__ == "__main__":
   main()
