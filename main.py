@@ -32,7 +32,7 @@ class SparseMatrix:
   def setElement(self, row, col, value):
     if value != 0:
       self.matrix[(row, col)] = value
-    elif (row, col) in matrix:
+    elif (row, col) in self.matrix:
       del self.matrix[(row, col)]
       
   def __getitem__(self, tuple):
@@ -41,16 +41,42 @@ class SparseMatrix:
   def __setitem__(self, tuple, value):
     self.setElement(tuple[0], tuple[1], value)
     
+  def __add__(self, other):
+    if type(other) != SparseMatrix:
+      raise ValueError("Matrices can only be added to matrices")
+    if self.numRows != other.numRows or self.numCols != other.numCols:
+      raise ValueError("Matrix dimensions must match for addition")
+    result = SparseMatrix(self.numRows, self.numCols)
+    for row in range(self.numRows):
+      for col in range(self.numCols):
+        sum_value = self[(row, col)] + other[(row, col)]
+        result[(row, col)] = sum_value
+    return result
+  
+  def __sub__(self, other):
+    if type(other) != SparseMatrix:
+      raise ValueError("Matrices can only be subtracted from matrices")
+    if self.numRows != other.numRows or self.numCols != other.numCols:
+      raise ValueError("Matrix dimensions must match for subtraction")
+    result = SparseMatrix(self.numRows, self.numCols)
+    for row in range(self.numRows):
+      for col in range(self.numCols):
+        sub_value = self[(row, col)] - other[(row, col)]
+        result[(row, col)] = sub_value
+    return result
+    
   def __str__(self):
-    result = f"rows={self.numRows}\ncols={self.numCols}\n"
+    result = f"SparseMatrix\nrows={self.numRows}\ncols={self.numCols}\n"
     for (row, col), value in sorted(self.matrix.items()):
       result += f"({row}, {col}, {value})\n"
     return result
 
 
 def main():
-  matrix = SparseMatrix.load("Input/test")
-  print(matrix)
+  matrix1 = SparseMatrix.load("Input/test")
+  matrix2 = SparseMatrix.load("Input/test")
+  result = matrix1 + matrix2
+  print(result)
   
 if __name__ == "__main__":
   main()
